@@ -47,5 +47,15 @@ Add-DistributionGroupMember -Identity "DistributionGroupName" -Member wcoyote
 //full email address not needed 
 Remove-DistributionGroupMember -Identity "DistributionGroupName" -Member wcoyote  
 //full email address not needed
+
 #Create a Shared Mailbox and Grant Send On Behalf and Permissions
 New-Mailbox -Shared -Name "Sales Department" -DisplayName "Sales Department" -Alias Sales | Set-Mailbox -GrantSendOnBehalfTo MarketingSG | Add-MailboxPermission -User MarketingSG -AccessRights FullAccess -InheritanceType All 
+
+#Change Service Logon Type | https://stackoverflow.com/questions/966389/how-to-change-user-credentials-of-windows-service-from-command-line
+sc.exe config MyService obj= localsystem
+sc.exe config "Service Name" obj= "DOMAIN\User" password= "password"
+
+#Changing Email Address of Office365 Group 
+Set-UnifiedGroup -Identity "Marketing Department" -PrimarySmtpAddress marketing@contoso.com
+#Add additional addresses of Office365 Group: 
+Set-UnifiedGroup -Identity "Marketing Department" -emailaddresses smtp:alias1@contos.com 
