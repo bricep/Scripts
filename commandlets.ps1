@@ -26,4 +26,26 @@ Get-Mailbox | Get-MailboxPermission | where {$_.user.tostring() -ne "NT AUTHORIT
 #Find Files Larger Than X
 Get-ChildItem C:\ -recurse | where-object {$_.length -gt 524288000} | Sort-Object length | ft fullname, length -auto
 #Find Files Larger Than X Of a Specific Type
-Get-ChildItem C:\ -recurse -include *.exe | where-object {$_.length -gt 524288000} | Sort-Object length | ft fullname, length -auto 
+Get-ChildItem C:\ -recurse -include *.exe | where-object {$_.length -gt 524288000} | Sort-Object length | ft fullname, length -auto
+#Get Uninstall String / GUID in Registry (Example uses Quicktime 7)
+$qtVer = Get-ChildItem -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall, HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall  | 
+    Get-ItemProperty | 
+        Where-Object {$_.DisplayName -eq "Quicktime 7" } | 
+            Select-Object -Property DisplayName, UninstallString
+#Event Viewer Searches
+Get-Eventlog System -Newest 100 | Where-Object {$_.entryType -Match "Error"} | ft -AutoSize 
+Get-Eventlog Application -Newest 100 | Where-Object {$_.entryType -Match "Error"} | ft -AutoSize 
+#Search Admin Audit Log with Powershell
+Search-AdminAuditLog -StartDate "4/6/2015 12:00:00 AM" -EndDate 4/6/2015 11:20:00 AM" 
+#Find what distribution lists a user belongs to 
+$Mailbox=get-Mailbox user@domain.com 
+$DN=$mailbox.DistinguishedName 
+$Filter = "Members -like ""$DN""" 
+Get-DistributionGroup -ResultSize Unlimited -Filter $Filter
+#Add and Remove Distribution Group Members in Office365
+Add-DistributionGroupMember -Identity "DistributionGroupName" -Member wcoyote 
+//full email address not needed 
+Remove-DistributionGroupMember -Identity "DistributionGroupName" -Member wcoyote  
+//full email address not needed
+#Create a Shared Mailbox and Grant Send On Behalf and Permissions
+New-Mailbox -Shared -Name "Sales Department" -DisplayName "Sales Department" -Alias Sales | Set-Mailbox -GrantSendOnBehalfTo MarketingSG | Add-MailboxPermission -User MarketingSG -AccessRights FullAccess -InheritanceType All 
